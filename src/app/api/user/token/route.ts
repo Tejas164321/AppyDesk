@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateRawApiToken, hashApiToken, storeDevToken, removeDevToken } from "@/lib/api-auth";
-import { adminDb } from "@/lib/firebase-admin";
+import { getAdminDb } from "@/lib/firebase-admin";
 import { handleCorsOptions, withCors } from "@/lib/cors";
 
 export const runtime = "nodejs";
@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
     storeDevToken(tokenHash, uid);
 
     // Store in Firestore if available
+    const adminDb = getAdminDb();
     if (adminDb) {
       try {
         await adminDb.collection("users").doc(uid).set(
@@ -78,6 +79,7 @@ export async function DELETE(req: NextRequest) {
 
     removeDevToken(uid);
 
+    const adminDb = getAdminDb();
     if (adminDb) {
       try {
         await adminDb.collection("users").doc(uid).update({

@@ -42,20 +42,30 @@ function initAdmin() {
   }
 }
 
-export const adminDb = new Proxy({} as Firestore, {
+export function getAdminDb(): Firestore | null {
+  initAdmin();
+  return dbInstance;
+}
+
+export function getAdminAuth(): Auth | null {
+  initAdmin();
+  return authInstance;
+}
+
+export const adminDb: Firestore | null = new Proxy({} as any, {
   get(target, prop) {
-    initAdmin();
-    if (!dbInstance) return undefined;
-    const value = (dbInstance as any)[prop];
-    return typeof value === "function" ? value.bind(dbInstance) : value;
+    const db = getAdminDb();
+    if (!db) return undefined;
+    const value = (db as any)[prop];
+    return typeof value === "function" ? value.bind(db) : value;
   },
 });
 
-export const adminAuth = new Proxy({} as Auth, {
+export const adminAuth: Auth | null = new Proxy({} as any, {
   get(target, prop) {
-    initAdmin();
-    if (!authInstance) return undefined;
-    const value = (authInstance as any)[prop];
-    return typeof value === "function" ? value.bind(authInstance) : value;
+    const auth = getAdminAuth();
+    if (!auth) return undefined;
+    const value = (auth as any)[prop];
+    return typeof value === "function" ? value.bind(auth) : value;
   },
 });

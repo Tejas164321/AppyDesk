@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { NextRequest } from "next/server";
-import { adminDb } from "./firebase-admin";
+import { getAdminDb } from "./firebase-admin";
 import { UserProfile } from "@/features/profile/types";
 
 // In-memory token store fallback for local development when Firebase Admin SDK is unconfigured
@@ -55,6 +55,7 @@ export async function authenticateRequest(
     }
 
     const hashedToken = hashApiToken(rawToken);
+    const adminDb = getAdminDb();
 
     // Try Firestore Admin DB first if available
     if (adminDb) {
@@ -108,6 +109,7 @@ export async function authenticateRequest(
   // 2. Fallback to Session / Body UID Authentication
   const targetUid = fallbackUid || "anonymous";
   let userProfile = getDefaultProfile(targetUid);
+  const adminDb = getAdminDb();
 
   if (targetUid && targetUid !== "anonymous" && adminDb) {
     try {
