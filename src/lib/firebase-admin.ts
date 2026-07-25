@@ -1,36 +1,61 @@
-import { getApps, initializeApp, cert } from "firebase-admin/app";
-import { getFirestore, Firestore } from "firebase-admin/firestore";
-import { getAuth, Auth } from "firebase-admin/auth";
+import type { Firestore } from "firebase-admin/firestore";
+import type { Auth } from "firebase-admin/auth";
 
-let adminApp: any = null;
-let adminDb: Firestore | null = null;
-let adminAuth: Auth | null = null;
+let dbInstance: Firestore | null = null;
+let authInstance: Auth | null = null;
+let initialized = false;
 
-try {
-  if (!getApps().length) {
-    const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-    if (
-      serviceAccountJson &&
-      serviceAccountJson.includes("service_account") &&
-      !serviceAccountJson.includes("...")
-    ) {
-      const serviceAccount = JSON.parse(serviceAccountJson);
-      adminApp = initializeApp({
-        credential: cert(serviceAccount),
-      });
+function initAdmin() {
+  if (initialized) return;
+  initialized = true;
+
+  try {
+    const { getApps, initializeApp, cert } = require("firebase-admin/app");
+    const { getFirestore } = require("firebase-admin/firestore");
+    const { getAuth } = require("firebase-admin/auth");
+
+    let adminApp;
+    if (!getApps().length) {
+      const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+      if (
+        serviceAccountJson &&
+        serviceAccountJson.includes("service_account") &&
+        !serviceAccountJson.includes("...")
+      ) {
+        const serviceAccount = JSON.parse(serviceAccountJson);
+        adminApp = initializeApp({
+          credential: cert(serviceAccount),
+        });
+      }
+    } else {
+      adminApp = getApps()[0];
     }
-  } else {
-    adminApp = getApps()[0];
-  }
 
-  if (adminApp) {
-    adminDb = getFirestore(adminApp);
-    adminAuth = getAuth(adminApp);
+    if (adminApp) {
+      dbInstance = getFirestore(adminApp);
+      authInstance = getAuth(adminApp);
+    }
+  } catch (error) {
+    console.warn("Firebase Admin SDK lazy init skipped (no valid service account):", error);
+    dbInstance = null;
+    authInstance = null;
   }
-} catch (error) {
-  console.warn("Firebase Admin SDK initialization skipped (no valid credentials):", error);
-  adminDb = null;
-  adminAuth = null;
 }
 
-export { adminDb, adminAuth };
+export const adminDb = new Proxy({} as Firestore, {
+  get(target, prop) {
+    initAdmin();
+    if (!dbInstance) return undefined;
+    const value = (dbInstance as any)[prop];
+    return typeof value === "function" ? value.bind(dbInstance) : value;
+  },
+});
+
+export const adminAuth = new Proxy({} as Auth, {
+  get(target, prop) {
+    initAdmin();
+    if (!authInstance) return undefined;
+    const value = (authInstance as any)[prop];
+    return typeof value === "function" ? value.bind(authInstance) : value;
+  },
+});
