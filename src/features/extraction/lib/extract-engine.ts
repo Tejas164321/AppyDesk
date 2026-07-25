@@ -1,5 +1,3 @@
-import Anthropic from "@anthropic-ai/sdk";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { UserProfile, LLMConfig } from "@/features/profile/types";
 import { ExtractionResult } from "@/features/applications/types";
 
@@ -49,7 +47,7 @@ export async function extractAndDraftWithClaude(
   }
 }
 
-// 1. Anthropic Claude Provider
+// 1. Anthropic Claude Provider (Dynamic Import)
 async function callAnthropicClaude(
   jobText: string,
   imageList: string[],
@@ -57,6 +55,7 @@ async function callAnthropicClaude(
   apiKey: string,
   modelName: string
 ): Promise<ExtractionResult> {
+  const { default: Anthropic } = await import("@anthropic-ai/sdk");
   const anthropic = new Anthropic({ apiKey });
   const systemPrompt = getSystemPrompt();
   const userPrompt = getUserPrompt(jobText, profile);
@@ -95,7 +94,7 @@ async function callAnthropicClaude(
   return parseExtractionJsonResponse(responseText, profile);
 }
 
-// 2. Google Gemini Provider
+// 2. Google Gemini Provider (Dynamic Import)
 async function callGoogleGemini(
   jobText: string,
   imageList: string[],
@@ -103,6 +102,7 @@ async function callGoogleGemini(
   apiKey: string,
   modelName: string
 ): Promise<ExtractionResult> {
+  const { GoogleGenerativeAI } = await import("@google/generative-ai");
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: modelName || "gemini-1.5-flash" });
 
@@ -156,18 +156,18 @@ async function callGroqAPI(
   return parseExtractionJsonResponse(responseText, profile);
 }
 
-// 4. xAI Grok / OpenAI Compatible Provider
+// 4. OpenAI & Grok API Provider
 async function callOpenAICompatible(
   jobText: string,
   profile: UserProfile,
   apiKey: string,
   modelName: string,
-  customEndpoint: string | undefined,
-  provider: string
+  customEndpoint?: string,
+  providerName = "OpenAI"
 ): Promise<ExtractionResult> {
   const endpoint =
     customEndpoint ||
-    (provider === "grok"
+    (providerName === "grok"
       ? "https://api.x.ai/v1/chat/completions"
       : "https://api.openai.com/v1/chat/completions");
 
@@ -178,15 +178,16 @@ async function callOpenAICompatible(
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: modelName || (provider === "grok" ? "grok-beta" : "gpt-4o-mini"),
+      model: modelName || (providerName === "grok" ? "grok-beta" : "gpt-4o-mini"),
       messages: [
         { role: "system", content: getSystemPrompt() },
         { role: "user", content: `${getUserPrompt(jobText, profile)}\n\nJob Posting:\n${jobText}` },
       ],
+      response_format: { type: "json_object" },
     }),
   });
 
-  if (!res.ok) throw new Error(`${provider} API error: ${res.statusText}`);
+  if (!res.ok) throw new Error(`${providerName} API error: ${res.statusText}`);
   const data = await res.json();
   const responseText = data.choices?.[0]?.message?.content || "";
   return parseExtractionJsonResponse(responseText, profile);
