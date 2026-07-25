@@ -1,15 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 :root {
-  --bg: #0b0c0e;
-  --surface: #14161a;
-  --surface-hover: #1c1f26;
-  --border: #23272f;
+  --bg: #07080a;
+  --surface: #111318;
+  --surface-hover: #181b22;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-focus: #10b981;
   --accent: #10b981;
+  --accent-hover: #059669;
   --accent-soft: rgba(16, 185, 129, 0.12);
+  --accent-glow: rgba(16, 185, 129, 0.25);
   --ink: #f3f4f6;
   --ink-soft: #9ca3af;
   --red: #ef4444;
   --green: #10b981;
   --amber: #f59e0b;
+  --radius-capsule: 9999px;
+  --radius-card: 18px;
+  --radius-input: 12px;
+}
+
+/* Custom Minimal Thin Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-capsule);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
 }
 
 * {
@@ -19,21 +43,35 @@
 }
 
 body {
-  width: 380px;
+  width: 400px;
   min-height: 480px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: var(--bg);
+  background-image: 
+    radial-gradient(circle at 10% 10%, rgba(16, 185, 129, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(16, 185, 129, 0.04) 0%, transparent 40%);
   color: var(--ink);
-  padding: 16px;
+  padding: 18px;
   user-select: none;
 }
 
+/* Main Floating Container */
+.popup-card {
+  background: linear-gradient(145deg, rgba(20, 23, 30, 0.95) 0%, rgba(13, 15, 20, 0.98) 100%);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 18px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+}
+
+/* Header & Brand */
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--border);
-  padding-bottom: 12px;
+  padding-bottom: 14px;
   margin-bottom: 16px;
 }
 
@@ -44,22 +82,27 @@ body {
 }
 
 .logo-badge {
-  width: 30px;
-  height: 30px;
-  border-radius: 10px;
-  background-color: var(--accent-soft);
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(16, 185, 129, 0.05) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.3);
   color: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 14px;
+  font-size: 15px;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.15);
 }
 
 .title {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 800;
   letter-spacing: -0.01em;
+  background: linear-gradient(180deg, #ffffff 0%, #d1d5db 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .header-actions {
@@ -70,41 +113,44 @@ body {
 
 .token-pill {
   font-size: 10px;
-  font-family: monospace;
-  padding: 2px 8px;
-  border-radius: 12px;
-  background-color: rgba(16, 185, 129, 0.1);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-capsule);
+  background-color: var(--accent-soft);
   color: var(--accent);
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .token-pill.missing {
   background-color: rgba(239, 68, 68, 0.1);
   color: var(--red);
-  border-color: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.25);
 }
 
 .gear-btn {
-  background: none;
-  border: none;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
   color: var(--ink-soft);
   cursor: pointer;
-  padding: 4px;
-  border-radius: 6px;
+  padding: 6px;
+  border-radius: var(--radius-capsule);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s;
+  transition: all 0.2s;
 }
 
 .gear-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
   color: var(--ink);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
-/* Sections & Cards */
+/* Sections & Hidden Utility */
 .section {
   display: flex;
-  flex-col: column;
+  flex-direction: column;
   gap: 14px;
 }
 
@@ -112,62 +158,72 @@ body {
   display: none !important;
 }
 
+/* Floating Capsule Buttons */
 .btn {
   width: 100%;
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
+  padding: 11px 16px;
+  border-radius: var(--radius-capsule);
+  font-size: 12px;
+  font-weight: 700;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 .btn-accent {
-  background-color: var(--accent);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: #ffffff;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
 }
 
 .btn-accent:hover:not(:disabled) {
-  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
 }
 
 .btn-outline {
-  background-color: var(--surface);
+  background-color: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border);
   color: var(--ink);
 }
 
 .btn-outline:hover:not(:disabled) {
-  background-color: var(--surface-hover);
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
-/* Screenshot Strip */
+/* Horizontal Screenshot Thumbnails Strip */
 .thumbnails-strip {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   overflow-x: auto;
-  padding-bottom: 6px;
-  margin-top: 8px;
+  padding-bottom: 8px;
+  margin-top: 4px;
 }
 
 .thumbnail-card {
   position: relative;
-  width: 76px;
-  height: 56px;
-  border-radius: 8px;
+  width: 84px;
+  height: 60px;
+  border-radius: 12px;
   border: 1px solid var(--border);
   overflow: hidden;
   flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: border-color 0.2s;
+}
+
+.thumbnail-card:hover {
+  border-color: var(--accent);
 }
 
 .thumbnail-img {
@@ -178,89 +234,96 @@ body {
 
 .remove-thumb-btn {
   position: absolute;
-  top: 3px;
-  right: 3px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.75);
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-capsule);
+  background-color: rgba(0, 0, 0, 0.85);
   color: #ffffff;
-  border: none;
-  font-size: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 12px;
+  font-weight: bold;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1;
+  transition: all 0.2s;
 }
 
 .remove-thumb-btn:hover {
   background-color: var(--red);
+  transform: scale(1.1);
 }
 
-/* Form Fields */
+/* Inputs & Form Fields */
 .field-group {
   margin-bottom: 12px;
 }
 
 .field-label {
   display: block;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 700;
   color: var(--ink-soft);
-  margin-bottom: 4px;
-  font-family: monospace;
+  margin-bottom: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .field-input,
 .field-textarea {
   width: 100%;
-  padding: 8px 10px;
-  background-color: var(--surface);
+  padding: 10px 12px;
+  background-color: rgba(7, 8, 10, 0.7);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-input);
   color: var(--ink);
   font-size: 12px;
   outline: none;
   font-family: inherit;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .field-input:focus,
 .field-textarea:focus {
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
 .field-textarea {
   resize: vertical;
-  min-height: 100px;
-  line-height: 1.4;
+  min-height: 110px;
+  line-height: 1.5;
   user-select: text;
 }
 
-/* Match Score Badge */
+/* Match Score Capsule Badge */
 .match-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 10px;
-  border-radius: 12px;
+  padding: 4px 12px;
+  border-radius: var(--radius-capsule);
   font-size: 11px;
   font-weight: 700;
-  font-family: monospace;
+  font-family: 'JetBrains Mono', monospace;
   background-color: var(--accent-soft);
   color: var(--accent);
   border: 1px solid rgba(16, 185, 129, 0.3);
-  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);
 }
 
 /* Status Banners */
 .banner {
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-input);
   font-size: 12px;
-  margin-bottom: 12px;
-  line-height: 1.4;
+  margin-bottom: 14px;
+  line-height: 1.5;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .banner.error {
@@ -275,20 +338,20 @@ body {
   color: var(--green);
 }
 
-/* Loading State */
+/* Loading Box */
 .loading-box {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 16px;
-  gap: 12px;
+  padding: 44px 16px;
+  gap: 14px;
   text-align: center;
 }
 
 .spinner {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border: 3px solid var(--accent-soft);
   border-top-color: var(--accent);
   border-radius: 50%;
@@ -304,14 +367,14 @@ body {
 .loading-text {
   font-size: 12px;
   color: var(--ink-soft);
-  font-family: monospace;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 /* Footer Link */
 .footer {
   margin-top: 16px;
   border-top: 1px solid var(--border);
-  padding-top: 10px;
+  padding-top: 12px;
   text-align: center;
 }
 
@@ -319,9 +382,12 @@ body {
   font-size: 11px;
   color: var(--accent);
   text-decoration: none;
-  font-family: monospace;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  transition: opacity 0.2s;
 }
 
 .footer-link:hover {
+  opacity: 0.8;
   text-decoration: underline;
 }
