@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ApplyDesk Capture</title>
+  <style>
+    body {
+      width: 280px;
+      margin: 0;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #101113;
+      color: #EDEDEB;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .icon {
+      width: 28px;
+      height: 28px;
+      background-color: #173330;
+      color: #3FA79A;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .title {
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .desc {
+      font-size: 12px;
+      color: #9B9C9D;
+      line-height: 1.4;
+      margin-bottom: 16px;
+    }
+    .btn {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background-color: #3FA79A;
+      color: #FFFFFF;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity 0.2s;
+    }
+    .btn:hover {
+      opacity: 0.9;
+    }
+    .footer {
+      margin-top: 12px;
+      font-size: 10px;
+      color: #9B9C9D;
+      text-align: center;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="icon">A</div>
+    <div class="title">ApplyDesk</div>
+  </div>
+
+  <div class="desc">
+    Capture the active tab's visible job post screenshot and pre-load into ApplyDesk.
+  </div>
+
+  <button id="capture-btn" class="btn">
+    <span>Capture & Open ApplyDesk</span>
+  </button>
+
+  <div class="footer">Manifest V3 • Personal Command Center</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

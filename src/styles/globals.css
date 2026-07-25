@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg: #F7F7F5;
+    --surface: #FFFFFF;
+    --border: #E4E2DC;
+    --ink: #1C1B19;
+    --ink-soft: #6B6960;
+    --accent: #245C56;
+    --accent-soft: #DCE8E4;
+    --amber: #B5792A;
+    --green: #3C6E3F;
+    --red: #A23B34;
+    --slate: #3E5C74;
+
+    --radius-card: 1rem; /* 16px - rounded-2xl */
+    --radius-input: 0.5rem; /* 8px - rounded-lg */
+    --radius-pill: 9999px; /* rounded-full */
+  }
+
+  .dark {
+    --bg: #101113;
+    --surface: #17181B;
+    --border: #26282C;
+    --ink: #EDEDEB;
+    --ink-soft: #9B9C9D;
+    --accent: #3FA79A;
+    --accent-soft: #173330;
+    --amber: #D99A4E;
+    --green: #5FA662;
+    --red: #D9645C;
+    --slate: #6E93AC;
+  }
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Glassmorphism utility */
+.glass-capsule {
+  background-color: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+}
+
+.dark .glass-capsule {
+  background-color: rgba(23, 24, 27, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+}
