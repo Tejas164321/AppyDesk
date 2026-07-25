@@ -3,6 +3,9 @@ import { generateRawApiToken, hashApiToken, storeDevToken, removeDevToken } from
 import { adminDb } from "@/lib/firebase-admin";
 import { handleCorsOptions, withCors } from "@/lib/cors";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function OPTIONS(req: NextRequest) {
   return handleCorsOptions(req);
 }

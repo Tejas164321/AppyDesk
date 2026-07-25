@@ -3,6 +3,9 @@ import { extractAndDraftWithClaude } from "@/features/extraction/lib/extract-eng
 import { authenticateRequest } from "@/lib/api-auth";
 import { handleCorsOptions, withCors } from "@/lib/cors";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function OPTIONS(req: NextRequest) {
   return handleCorsOptions(req);
 }

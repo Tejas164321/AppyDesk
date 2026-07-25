@@ -1,4 +1,4 @@
-import crypto from "crypto";
+import crypto from "node:crypto";
 import { NextRequest } from "next/server";
 import { adminDb } from "./firebase-admin";
 import { UserProfile } from "@/features/profile/types";

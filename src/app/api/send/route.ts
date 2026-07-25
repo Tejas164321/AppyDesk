@@ -6,6 +6,9 @@ import { checkAndUpdateRateLimit } from "@/lib/rate-limiter";
 import { checkDuplicateApplication } from "@/lib/dedupe";
 import { handleCorsOptions, withCors } from "@/lib/cors";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function OPTIONS(req: NextRequest) {
   return handleCorsOptions(req);
 }
