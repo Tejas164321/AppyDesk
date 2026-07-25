@@ -1,27 +1,37 @@
 import "server-only";
 import { getApps, initializeApp, cert } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
-import { getAuth } from "firebase-admin/auth";
+import { getFirestore, Firestore } from "firebase-admin/firestore";
+import { getAuth, Auth } from "firebase-admin/auth";
 
-let adminApp;
+let adminApp: any = null;
+let adminDb: Firestore | null = null;
+let adminAuth: Auth | null = null;
 
-if (!getApps().length) {
-  try {
+try {
+  if (!getApps().length) {
     const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-    if (serviceAccountJson && serviceAccountJson !== '{"type":"service_account","project_id":"..."}') {
+    if (
+      serviceAccountJson &&
+      serviceAccountJson.includes("service_account") &&
+      !serviceAccountJson.includes("...")
+    ) {
       const serviceAccount = JSON.parse(serviceAccountJson);
       adminApp = initializeApp({
         credential: cert(serviceAccount),
       });
-    } else {
-      adminApp = initializeApp();
     }
-  } catch (error) {
-    console.warn("Firebase Admin SDK init fallback (development mode):", error);
+  } else {
+    adminApp = getApps()[0];
   }
-} else {
-  adminApp = getApps()[0];
+
+  if (adminApp) {
+    adminDb = getFirestore(adminApp);
+    adminAuth = getAuth(adminApp);
+  }
+} catch (error) {
+  console.warn("Firebase Admin SDK initialization skipped (no valid credentials):", error);
+  adminDb = null;
+  adminAuth = null;
 }
 
-export const adminDb = adminApp ? getFirestore(adminApp) : null;
-export const adminAuth = adminApp ? getAuth(adminApp) : null;
+export { adminDb, adminAuth };
