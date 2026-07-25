@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ApplyDesk Capture Options</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="brand">
+        <div class="logo-badge">A</div>
+        <div>
+          <div class="title">ApplyDesk Capture</div>
+          <div class="subtitle">Extension Connection & API Settings</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="status-banner" class="banner"></div>
+
+    <form id="options-form">
+      <div class="form-group">
+        <label for="base-url">APPLYDESK BASE URL</label>
+        <input type="text" id="base-url" placeholder="http://localhost:3000" />
+        <div class="help-text">The URL where your ApplyDesk backend is running (defaults to http://localhost:3000 for local dev).</div>
+      </div>
+
+      <div class="form-group">
+        <label for="api-token">PERSONAL ACCESS TOKEN</label>
+        <div class="password-input-wrapper">
+          <input type="password" id="api-token" placeholder="adk_live_..." />
+          <button type="button" id="toggle-token-btn" class="toggle-btn">Show</button>
+        </div>
+        <div class="help-text">Generate a token in your ApplyDesk Profile & Resume settings page.</div>
+      </div>
+
+      <div class="actions">
+        <button type="button" id="test-btn" class="btn btn-secondary">
+          <span>Test Connection</span>
+        </button>
+        <button type="submit" id="save-btn" class="btn btn-primary">
+          <span>Save Settings</span>
+        </button>
+      </div>
+    </form>
+
+    <div class="footer">
+      ApplyDesk Manifest V3 Helper • Chrome Storage Local
+    </div>
+  </div>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>

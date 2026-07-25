@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "ApplyDesk — Job Capture Helper",
+  "name": "ApplyDesk Capture",
   "version": "1.0.0",
-  "description": "Capture job post screenshots from any tab and load directly into ApplyDesk.",
+  "description": "Capture job post screenshots from any tab, draft tailored applications using AI, and send directly from your browser.",
   "permissions": [
     "activeTab",
     "scripting",
@@ -13,7 +13,14 @@
     "https://*/*"
   ],
   "action": {
-    "default_popup": "popup.html",
-    "default_title": "Capture Job Post for ApplyDesk"
+    "default_popup": "popup/popup.html",
+    "default_title": "ApplyDesk Capture"
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "background": {
+    "service_worker": "background/background.js"
   }
 }

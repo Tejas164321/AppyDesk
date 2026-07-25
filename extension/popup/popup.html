@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ApplyDesk Capture</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="brand">
+      <div class="logo-badge">A</div>
+      <div class="title">ApplyDesk Capture</div>
+    </div>
+    <div class="header-actions">
+      <span id="token-status" class="token-pill missing">No Token</span>
+      <button id="options-btn" class="gear-btn" title="Extension Settings">⚙️</button>
+    </div>
+  </div>
+
+  <!-- Status / Error Banner -->
+  <div id="popup-banner" class="banner hidden"></div>
+
+  <!-- STEP 1: CAPTURE VIEW -->
+  <div id="capture-step" class="section">
+    <button id="capture-btn" class="btn btn-outline">
+      <span>📸 Capture Page Screenshot</span>
+    </button>
+
+    <div id="thumbnails-container" class="thumbnails-strip hidden"></div>
+
+    <div class="field-group" style="margin-top: 10px;">
+      <label class="field-label" for="jd-text">Paste Job Description Text (Optional)</label>
+      <textarea id="jd-text" class="field-textarea" style="min-height: 70px;" placeholder="Paste job text or URL context here..."></textarea>
+    </div>
+
+    <button id="draft-btn" class="btn btn-accent" disabled>
+      <span>✨ Draft Application</span>
+    </button>
+  </div>
+
+  <!-- LOADING VIEW -->
+  <div id="loading-step" class="loading-box hidden">
+    <div class="spinner"></div>
+    <div id="loading-msg" class="loading-text">AI Analyzing Job Post & Drafting...</div>
+  </div>
+
+  <!-- STEP 2: DRAFT REVIEW & EDIT VIEW -->
+  <div id="review-step" class="section hidden">
+    <div class="flex items-center justify-between" style="display: flex; justify-space-between; align-items: center; margin-bottom: 6px;">
+      <span id="match-score-badge" class="match-badge">85% Match</span>
+      <button id="re-capture-btn" style="background: none; border: none; color: var(--ink-soft); font-size: 11px; cursor: pointer; font-family: monospace;">← Recapture</button>
+    </div>
+
+    <div style="display: flex; gap: 8px;">
+      <div class="field-group" style="flex: 1;">
+        <label class="field-label" for="company-input">Company</label>
+        <input type="text" id="company-input" class="field-input" placeholder="Company Name" />
+      </div>
+      <div class="field-group" style="flex: 1;">
+        <label class="field-label" for="role-input">Role</label>
+        <input type="text" id="role-input" class="field-input" placeholder="Job Title" />
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="email-input">Contact Email</label>
+      <input type="text" id="email-input" class="field-input" placeholder="recruiter@company.com" />
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="subject-input">Email Subject</label>
+      <input type="text" id="subject-input" class="field-input" placeholder="Application Subject" />
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="body-input">Tailored Email Body (Editable)</label>
+      <textarea id="body-input" class="field-textarea" placeholder="AI drafted email body..."></textarea>
+    </div>
+
+    <button id="send-btn" class="btn btn-accent">
+      <span>🚀 Send Application Email</span>
+    </button>
+  </div>
+
+  <!-- STEP 3: SUCCESS VIEW -->
+  <div id="success-step" class="section hidden" style="text-align: center; padding: 20px 0;">
+    <div style="width: 44px; height: 44px; border-radius: 50%; background-color: var(--accent-soft); color: var(--green); display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto 12px auto;">✓</div>
+    <div style="font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 6px;">Application Sent!</div>
+    <div id="success-desc" style="font-size: 12px; color: var(--ink-soft); line-height: 1.4; margin-bottom: 16px;">
+      Your application email has been sent with resume attached via Gmail API.
+    </div>
+
+    <button id="dashboard-btn" class="btn btn-accent" style="margin-bottom: 8px;">
+      <span>Open in ApplyDesk Dashboard</span>
+    </button>
+    <button id="new-capture-btn" class="btn btn-outline">
+      <span>Capture Another Job</span>
+    </button>
+  </div>
+
+  <!-- Footer Link -->
+  <div class="footer">
+    <a href="#" id="open-history-link" class="footer-link">Open Full History in ApplyDesk →</a>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

@@ -8,6 +8,7 @@ import { useProfileStore } from "../store";
 import { useAuth } from "@/features/auth/auth-context";
 import { ResumeUploader } from "./resume-uploader";
 import { LLMSettings } from "./llm-settings";
+import { ExtensionTokenSettings } from "./extension-token-settings";
 import { ResumeFile } from "../types";
 import { Save, CheckCircle, AlertCircle, RefreshCw, User, Link as LinkIcon, Sparkles, Settings } from "lucide-react";
 
@@ -277,6 +278,13 @@ export function ProfileForm() {
 
       {/* Multi-LLM Provider Settings Panel */}
       <LLMSettings register={register} setValue={setValue} watch={watch} />
+
+      {/* Developer & Extension Access Token */}
+      <ExtensionTokenSettings
+        uid={user?.uid || ""}
+        hasExistingToken={!!(profile as any)?.apiTokenHash}
+        tokenCreatedAt={(profile as any)?.apiTokenCreatedAt}
+      />
 
       {/* Resume Upload & Professional Summary */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

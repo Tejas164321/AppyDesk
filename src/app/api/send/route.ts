@@ -1,50 +1,91 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendEmailViaGmail } from "@/lib/gmail";
 import { adminDb } from "@/lib/firebase-admin";
+import { authenticateRequest } from "@/lib/api-auth";
+import { checkAndUpdateRateLimit } from "@/lib/rate-limiter";
+import { checkDuplicateApplication } from "@/lib/dedupe";
+import { handleCorsOptions, withCors } from "@/lib/cors";
+
+export async function OPTIONS(req: NextRequest) {
+  return handleCorsOptions(req);
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const payload = await req.json();
+    const payload = await req.json().catch(() => ({}));
     const {
-      company,
-      role,
+      company = "Company",
+      role = "Position",
       contactEmail,
       subject,
       body,
       matchScore = 0,
       keyRequirements = [],
       jdSnippet = "",
-      source = "paste",
-      uid = "anonymous",
+      source = "single",
+      uid,
     } = payload;
 
     if (!contactEmail || !subject || !body) {
-      return NextResponse.json(
-        { error: "Recipient email, subject, and body are required" },
-        { status: 400 }
+      return withCors(
+        NextResponse.json(
+          { error: "Recipient email, subject, and body are required" },
+          { status: 400 }
+        ),
+        req
       );
     }
 
-    // 1. Fetch user's Cloudinary resume asset from Firestore
-    let resumeUrl: string | null = null;
-    let resumeFilename: string | null = "Resume.pdf";
-
-    if (uid && uid !== "anonymous" && adminDb) {
-      try {
-        const userDoc = await adminDb.collection("users").doc(uid).get();
-        if (userDoc.exists) {
-          const userData = userDoc.data();
-          if (userData?.resumeFile?.cloudinaryUrl) {
-            resumeUrl = userData.resumeFile.cloudinaryUrl;
-            resumeFilename = userData.resumeFile.filename || "Resume.pdf";
-          }
-        }
-      } catch (err) {
-        console.warn("Could not fetch user resume from Firestore admin:", err);
-      }
+    // 1. Authenticate Request via Personal Token or Session fallback
+    const authResult = await authenticateRequest(req, uid);
+    if (!authResult.authenticated) {
+      return withCors(
+        NextResponse.json({ error: authResult.error || "Unauthorized access" }, { status: 401 }),
+        req
+      );
     }
 
-    // 2. Outbound email send via Gmail API
+    const effectiveUid = authResult.uid;
+    const userProfile = authResult.userProfile;
+    const dailyCap = userProfile.settings?.dailySendCap || 15;
+
+    // 2. Enforce Rate Limiting
+    const rateCheck = await checkAndUpdateRateLimit(effectiveUid, dailyCap);
+    if (!rateCheck.allowed) {
+      return withCors(
+        NextResponse.json(
+          {
+            error: rateCheck.reason || "Daily email send cap reached",
+            rateLimited: true,
+            sentToday: rateCheck.sentToday,
+            dailyCap: rateCheck.dailyCap,
+          },
+          { status: 429 }
+        ),
+        req
+      );
+    }
+
+    // 3. Enforce Deduplication Check
+    const dedupeCheck = await checkDuplicateApplication(effectiveUid, contactEmail, company);
+    if (dedupeCheck.isDuplicate) {
+      return withCors(
+        NextResponse.json(
+          {
+            error: dedupeCheck.reason,
+            isDuplicate: true,
+          },
+          { status: 409 }
+        ),
+        req
+      );
+    }
+
+    // 4. Resolve Resume Asset from User Profile
+    let resumeUrl: string | null = userProfile.resumeFile?.cloudinaryUrl || null;
+    let resumeFilename: string | null = userProfile.resumeFile?.filename || "Resume.pdf";
+
+    // 5. Send Email via Gmail API
     const sendResult = await sendEmailViaGmail({
       to: contactEmail,
       subject,
@@ -58,18 +99,18 @@ export async function POST(req: NextRequest) {
 
     const applicationRecord = {
       id: applicationId,
-      userId: uid,
+      userId: effectiveUid,
       company,
       role,
       contactEmail,
-      source,
+      source: source || "single",
       jdSnippet,
       matchScore,
       keyRequirements,
       subject,
       body,
       status: "sent",
-      channel: "single",
+      channel: source === "extension" ? "extension" : "single",
       createdAt: nowIso,
       sentAt: nowIso,
       lastUpdatedAt: nowIso,
@@ -80,25 +121,31 @@ export async function POST(req: NextRequest) {
       ],
     };
 
-    // 3. Persist log to applications/{id} in Firestore
+    // 6. Log Application to Firestore applications/{id}
     if (adminDb) {
       try {
         await adminDb.collection("applications").doc(applicationId).set(applicationRecord);
       } catch (err) {
-        console.warn("Could not write application log to Firestore:", err);
+        console.warn("Could not write application record to Firestore:", err);
       }
     }
 
-    return NextResponse.json({
-      success: true,
-      messageId: sendResult.messageId,
-      application: applicationRecord,
-    });
+    return withCors(
+      NextResponse.json({
+        success: true,
+        messageId: sendResult.messageId,
+        application: applicationRecord,
+      }),
+      req
+    );
   } catch (error: any) {
     console.error("Outbound send API error:", error);
-    return NextResponse.json(
-      { error: error?.message || "Failed to send application email" },
-      { status: 500 }
+    return withCors(
+      NextResponse.json(
+        { error: error?.message || "Failed to send application email" },
+        { status: 500 }
+      ),
+      req
     );
   }
 }

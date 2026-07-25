@@ -5,10 +5,16 @@ import { ExtractionResult } from "@/features/applications/types";
 
 export async function extractAndDraftWithClaude(
   jobText: string,
-  imageUrl: string | undefined,
+  images: string[] | string | undefined,
   profile: UserProfile,
   customLlmConfig?: LLMConfig
 ): Promise<ExtractionResult> {
+  const imageList: string[] = Array.isArray(images)
+    ? images.filter(Boolean)
+    : typeof images === "string" && images
+    ? [images]
+    : [];
+
   const llmConfig = customLlmConfig || profile.llmConfig || {
     provider: "anthropic",
     apiKey: process.env.ANTHROPIC_API_KEY || "",
@@ -27,7 +33,7 @@ export async function extractAndDraftWithClaude(
   try {
     switch (provider) {
       case "gemini":
-        return await callGoogleGemini(jobText, imageUrl, profile, apiKey, modelName);
+        return await callGoogleGemini(jobText, imageList, profile, apiKey, modelName);
       case "groq":
         return await callGroqAPI(jobText, profile, apiKey, modelName);
       case "grok":
@@ -35,7 +41,7 @@ export async function extractAndDraftWithClaude(
         return await callOpenAICompatible(jobText, profile, apiKey, modelName, llmConfig.customEndpoint, provider);
       case "anthropic":
       default:
-        return await callAnthropicClaude(jobText, imageUrl, profile, apiKey, modelName);
+        return await callAnthropicClaude(jobText, imageList, profile, apiKey, modelName);
     }
   } catch (err) {
     console.warn(`Extraction failed with provider ${provider}, falling back:`, err);
@@ -46,7 +52,7 @@ export async function extractAndDraftWithClaude(
 // 1. Anthropic Claude Provider
 async function callAnthropicClaude(
   jobText: string,
-  imageUrl: string | undefined,
+  imageList: string[],
   profile: UserProfile,
   apiKey: string,
   modelName: string
@@ -57,7 +63,25 @@ async function callAnthropicClaude(
 
   const contentBlocks: any[] = [];
   if (jobText) contentBlocks.push({ type: "text", text: `Job Posting Text:\n${jobText}` });
-  if (imageUrl) contentBlocks.push({ type: "image", source: { type: "url", url: imageUrl } });
+  
+  for (const imgUrl of imageList) {
+    if (imgUrl.startsWith("data:image/")) {
+      const matches = imgUrl.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
+      if (matches) {
+        contentBlocks.push({
+          type: "image",
+          source: {
+            type: "base64",
+            media_type: matches[1] as any,
+            data: matches[2],
+          },
+        });
+      }
+    } else if (imgUrl.startsWith("http")) {
+      contentBlocks.push({ type: "image", source: { type: "url", url: imgUrl } });
+    }
+  }
+
   contentBlocks.push({ type: "text", text: userPrompt });
 
   const response = await anthropic.messages.create({
@@ -74,7 +98,7 @@ async function callAnthropicClaude(
 // 2. Google Gemini Provider
 async function callGoogleGemini(
   jobText: string,
-  imageUrl: string | undefined,
+  imageList: string[],
   profile: UserProfile,
   apiKey: string,
   modelName: string
@@ -82,8 +106,23 @@ async function callGoogleGemini(
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: modelName || "gemini-1.5-flash" });
 
-  const prompt = `${getSystemPrompt()}\n\n${getUserPrompt(jobText, profile)}\n\nJob Posting:\n${jobText}`;
-  const result = await model.generateContent(prompt);
+  const promptParts: any[] = [`${getSystemPrompt()}\n\n${getUserPrompt(jobText, profile)}\n\nJob Posting:\n${jobText}`];
+  
+  for (const imgUrl of imageList) {
+    if (imgUrl.startsWith("data:image/")) {
+      const matches = imgUrl.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
+      if (matches) {
+        promptParts.push({
+          inlineData: {
+            mimeType: matches[1],
+            data: matches[2],
+          },
+        });
+      }
+    }
+  }
+
+  const result = await model.generateContent(promptParts);
   const responseText = result.response.text();
   return parseExtractionJsonResponse(responseText, profile);
 }
