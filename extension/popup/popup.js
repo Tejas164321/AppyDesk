@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const banner = document.getElementById("popup-banner");
 
   const captureStep = document.getElementById("capture-step");
+  const autofillBtn = document.getElementById("autofill-btn");
   const captureBtn = document.getElementById("capture-btn");
   const thumbnailsContainer = document.getElementById("thumbnails-container");
   const jdTextarea = document.getElementById("jd-text");
@@ -72,6 +73,35 @@ document.addEventListener("DOMContentLoaded", async () => {
     openDashboard();
   });
 
+  // 1. TRIGGER AUTOFILL FORM ON CURRENT TAB
+  if (autofillBtn) {
+    autofillBtn.addEventListener("click", () => {
+      if (!token) {
+        showBanner("⚠️ Please configure your Personal Access Token in Options (⚙️).", "error");
+        return;
+      }
+
+      if (typeof chrome === "undefined" || !chrome.tabs || !chrome.tabs.query) {
+        showBanner("Autofill requires Chrome extension environment.", "error");
+        return;
+      }
+
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (!tabs || tabs.length === 0) return;
+        const activeTab = tabs[0];
+
+        chrome.tabs.sendMessage(activeTab.id, { type: "TRIGGER_AUTOFILL" }, (response) => {
+          if (chrome.runtime.lastError) {
+            showBanner("Could not trigger autofill on this page. Make sure you are on a web page with an active application form.", "error");
+          } else {
+            showBanner("⚡ Triggered Autofill on current page!", "success");
+            setTimeout(() => window.close(), 1000);
+          }
+        });
+      });
+    });
+  }
+
   // Update Draft Button state
   const updateDraftButtonState = () => {
     const hasInput = screenshots.length > 0 || jdTextarea.value.trim().length > 0;
@@ -79,7 +109,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
   jdTextarea.addEventListener("input", updateDraftButtonState);
 
-  // 1. Capture Visible Tab Screenshot
+  // 2. Capture Visible Tab Screenshot
   captureBtn.addEventListener("click", () => {
     if (typeof chrome === "undefined" || !chrome.tabs || !chrome.tabs.captureVisibleTab) {
       showBanner("Screenshot capture requires Chrome extension environment.", "error");
@@ -133,7 +163,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // 2. Process / Draft Application
+  // 3. Process / Draft Application
   draftBtn.addEventListener("click", async () => {
     if (!token) {
       showBanner("⚠️ Please configure your Personal Access Token in Options (⚙️).", "error");
@@ -177,7 +207,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     showStep("capture");
   });
 
-  // 3. Review & Send Application
+  // 4. Review & Send Application Email
   sendBtn.addEventListener("click", async () => {
     const contactEmail = emailInput.value.trim();
     const subject = subjectInput.value.trim();

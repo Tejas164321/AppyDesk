@@ -1,0 +1,146 @@
+/* ApplyDesk Content Script UI & Field Highlight Styling */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap');
+
+/* Visual Field Outlines */
+.adk-filled-highlight {
+  outline: 2px solid #10b981 !important;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.4) !important;
+  transition: all 0.3s ease !important;
+}
+
+.adk-review-highlight {
+  outline: 2px solid #f59e0b !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4) !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Floating Capsule Button Container */
+#adk-capsule-root {
+  position: fixed !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  z-index: 2147483647 !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+.adk-capsule-btn {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 12px 20px !important;
+  border-radius: 9999px !important;
+  background: linear-gradient(135deg, #131725 0%, #090c12 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 
+    0 12px 32px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+    0 4px 16px rgba(16, 185, 129, 0.25) !important;
+  cursor: pointer !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  user-select: none !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.adk-capsule-btn:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  border-color: #10b981 !important;
+  box-shadow: 
+    0 16px 36px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(16, 185, 129, 0.4) !important;
+}
+
+.adk-badge-icon {
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  color: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+}
+
+/* Compact Summary Card */
+.adk-summary-card {
+  position: absolute !important;
+  bottom: 60px !important;
+  right: 0 !important;
+  width: 320px !important;
+  background: linear-gradient(160deg, #131725 0%, #090c12 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 18px !important;
+  padding: 16px !important;
+  color: #f8fafc !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.65) !important;
+  animation: adkFadeUp 0.3s ease-out !important;
+}
+
+@keyframes adkFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.adk-summary-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  margin-bottom: 8px !important;
+  color: #ffffff !important;
+}
+
+.adk-summary-body {
+  font-size: 11px !important;
+  line-height: 1.5 !important;
+  color: #94a3b8 !important;
+  margin-bottom: 12px !important;
+}
+
+.adk-summary-pills {
+  display: flex !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+}
+
+.adk-pill {
+  font-size: 10px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-weight: 600 !important;
+  padding: 3px 8px !important;
+  border-radius: 9999px !important;
+}
+
+.adk-pill-green {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #10b981 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+.adk-pill-amber {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #f59e0b !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+.adk-close-btn {
+  background: transparent !important;
+  border: none !important;
+  color: #94a3b8 !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+}
+.adk-close-btn:hover {
+  color: #ffffff !important;
+}

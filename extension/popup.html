@@ -4,87 +4,128 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ApplyDesk Capture</title>
-  <style>
-    body {
-      width: 280px;
-      margin: 0;
-      padding: 16px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background-color: #101113;
-      color: #EDEDEB;
-    }
-    .header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    .icon {
-      width: 28px;
-      height: 28px;
-      background-color: #173330;
-      color: #3FA79A;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 14px;
-    }
-    .title {
-      font-weight: 700;
-      font-size: 15px;
-    }
-    .desc {
-      font-size: 12px;
-      color: #9B9C9D;
-      line-height: 1.4;
-      margin-bottom: 16px;
-    }
-    .btn {
-      width: 100%;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      background-color: #3FA79A;
-      color: #FFFFFF;
-      font-weight: 600;
-      font-size: 13px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: opacity 0.2s;
-    }
-    .btn:hover {
-      opacity: 0.9;
-    }
-    .footer {
-      margin-top: 12px;
-      font-size: 10px;
-      color: #9B9C9D;
-      text-align: center;
-      font-family: monospace;
-    }
-  </style>
+  <link rel="stylesheet" href="popup/popup.css" />
 </head>
 <body>
+  <!-- Top Ambient Glow Line -->
+  <div class="top-accent-bar"></div>
+
+  <!-- Header -->
   <div class="header">
-    <div class="icon">A</div>
-    <div class="title">ApplyDesk</div>
+    <div class="brand">
+      <div class="logo-badge">A</div>
+      <div>
+        <div class="title">ApplyDesk Capture</div>
+        <div class="subtitle">AI Job Application Assistant</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span id="token-status" class="token-pill missing">No Token</span>
+      <button id="options-btn" class="gear-btn" title="Extension Settings">⚙️</button>
+    </div>
   </div>
 
-  <div class="desc">
-    Capture the active tab's visible job post screenshot and pre-load into ApplyDesk.
+  <!-- Status / Error Banner -->
+  <div id="popup-banner" class="banner hidden"></div>
+
+  <!-- STEP 1: CAPTURE / AUTOFILL VIEW -->
+  <div id="capture-step" class="section">
+    <button id="autofill-btn" class="btn btn-accent autofill-primary-btn">
+      <span class="btn-icon">⚡</span>
+      <span>Autofill Form on Current Page</span>
+    </button>
+
+    <div class="divider-or"><span>OR EMAIL DRAFTING</span></div>
+
+    <button id="capture-btn" class="btn btn-outline capture-action-btn">
+      <span class="btn-icon">📸</span>
+      <span>Capture Screenshot & Email</span>
+    </button>
+
+    <div id="thumbnails-container" class="thumbnails-strip hidden"></div>
+
+    <div class="field-group" style="margin-top: 4px;">
+      <label class="field-label" for="jd-text">Paste Job Description (Optional)</label>
+      <textarea id="jd-text" class="field-textarea" style="min-height: 70px;" placeholder="Paste job text or URL context here..."></textarea>
+    </div>
+
+    <button id="draft-btn" class="btn btn-outline" disabled>
+      <span class="btn-icon">✨</span>
+      <span>Draft Application Email</span>
+    </button>
   </div>
 
-  <button id="capture-btn" class="btn">
-    <span>Capture & Open ApplyDesk</span>
-  </button>
+  <!-- LOADING VIEW -->
+  <div id="loading-step" class="loading-box hidden">
+    <div class="spinner-container">
+      <div class="spinner"></div>
+      <div class="spinner-glow"></div>
+    </div>
+    <div id="loading-msg" class="loading-text">AI Analyzing Job Post & Drafting...</div>
+  </div>
 
-  <div class="footer">Manifest V3 • Personal Command Center</div>
+  <!-- STEP 2: DRAFT REVIEW & EDIT VIEW -->
+  <div id="review-step" class="section hidden">
+    <div class="review-header">
+      <span id="match-score-badge" class="match-badge">85% Match</span>
+      <button id="re-capture-btn" class="back-link">← Recapture</button>
+    </div>
 
-  <script src="popup.js"></script>
+    <div class="input-grid-2">
+      <div class="field-group">
+        <label class="field-label" for="company-input">Company</label>
+        <input type="text" id="company-input" class="field-input" placeholder="Company Name" />
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="role-input">Role</label>
+        <input type="text" id="role-input" class="field-input" placeholder="Job Title" />
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="email-input">Contact Email</label>
+      <input type="text" id="email-input" class="field-input" placeholder="recruiter@company.com" />
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="subject-input">Email Subject</label>
+      <input type="text" id="subject-input" class="field-input" placeholder="Application Subject" />
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="body-input">Tailored Email Body (Editable)</label>
+      <textarea id="body-input" class="field-textarea" placeholder="AI drafted email body..."></textarea>
+    </div>
+
+    <button id="send-btn" class="btn btn-accent">
+      <span class="btn-icon">🚀</span>
+      <span>Send Application Email</span>
+    </button>
+  </div>
+
+  <!-- STEP 3: SUCCESS VIEW -->
+  <div id="success-step" class="section hidden success-container">
+    <div class="success-icon-badge">✓</div>
+    <div class="success-title">Application Sent!</div>
+    <div id="success-desc" class="success-desc">
+      Your application email has been sent with resume attached via Gmail API.
+    </div>
+
+    <div class="success-actions">
+      <button id="dashboard-btn" class="btn btn-accent">
+        <span>Open in ApplyDesk Dashboard</span>
+      </button>
+      <button id="new-capture-btn" class="btn btn-outline">
+        <span>Capture Another Job</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer Link -->
+  <div class="footer">
+    <a href="#" id="open-history-link" class="footer-link">Open Full History in ApplyDesk →</a>
+  </div>
+
+  <script type="module" src="popup/popup.js"></script>
 </body>
 </html>

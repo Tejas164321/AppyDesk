@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { UserProfile, ResumeFile } from "./types";
+import { UserProfile, ResumeFile, WorkExperience, Education } from "./types";
 import { fetchUserProfile, saveUserProfile } from "./api/profile";
 
 export type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -37,7 +37,7 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
     set({ saveStatus: "saving", errorMessage: null });
     try {
       const current = get().profile;
-      const updated = {
+      const updated: UserProfile = {
         uid,
         name: data.name ?? current?.name ?? "",
         email: data.email ?? current?.email ?? "",
@@ -62,6 +62,16 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
           customEndpoint: data.llmConfig?.customEndpoint ?? current?.llmConfig?.customEndpoint ?? "",
         },
         resumeFile: data.resumeFile ?? current?.resumeFile ?? null,
+
+        // Rich autofill context fields
+        workExperience: data.workExperience ?? current?.workExperience ?? [],
+        education: data.education ?? current?.education ?? [],
+        skills: data.skills ?? current?.skills ?? [],
+        yearsOfExperience: data.yearsOfExperience ?? current?.yearsOfExperience,
+        workAuthorization: data.workAuthorization ?? current?.workAuthorization ?? "",
+        salaryExpectation: data.salaryExpectation ?? current?.salaryExpectation ?? "",
+        availableFrom: data.availableFrom ?? current?.availableFrom ?? "",
+        languages: data.languages ?? current?.languages ?? [],
       };
 
       await saveUserProfile(uid, updated);

@@ -28,6 +28,27 @@ export interface ProfileSettings {
   timezone: string;
 }
 
+export interface WorkExperience {
+  id: string;
+  company: string;
+  title: string;
+  startDate: string;       // "YYYY-MM" format e.g. "2022-03"
+  endDate: string | null;  // null = currently working here
+  isCurrent: boolean;
+  location: string;
+  description: string;     // accomplishments / bullet points
+}
+
+export interface Education {
+  id: string;
+  school: string;
+  degree: string;          // e.g. "Bachelor of Science"
+  field: string;           // e.g. "Computer Science"
+  startDate: string;       // "YYYY" or "YYYY-MM"
+  endDate: string;         // "YYYY" or "YYYY-MM"
+  gpa?: string;
+}
+
 export interface UserProfile {
   uid: string;
   name: string;
@@ -40,4 +61,14 @@ export interface UserProfile {
   settings: ProfileSettings;
   llmConfig?: LLMConfig;
   updatedAt?: string;
+
+  // Rich context for accurate autofill
+  workExperience?: WorkExperience[];
+  education?: Education[];
+  skills?: string[];
+  yearsOfExperience?: number;
+  workAuthorization?: string;   // "US Citizen", "H1B Visa", "Need Sponsorship", etc.
+  salaryExpectation?: string;   // e.g. "$120k - $150k" or "Open to discussion"
+  availableFrom?: string;       // "Immediately", "2 weeks notice", "1 month notice"
+  languages?: string[];         // e.g. ["English (Native)", "Spanish (Conversational)"]
 }
